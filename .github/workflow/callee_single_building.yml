@@ -1,0 +1,113 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Check single house
+run-name: Check ${{ inputs.houseName }} At $(date +'%Y-%m-%dT%H:%M:%S')
+
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        required: true
+        description: 'type'
+      houseName:
+        required: true
+        description: 'House Name'
+      encodedHouseName:
+        required: true
+        description: 'Encoded House Name'
+      grepKey:
+        required: true
+        description: 'Grep Key'
+      grepKeyExcluded:
+        required: false
+        description: 'Grep Key excluded'
+      homePage:
+        required: true
+        description: 'home page'
+
+permissions:
+  issues: write  # This line ensures the workflow has permission to create issues
+  actions: write
+  contents: read
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: Make request and capture response(jkk)
+        id: curl_request_jkk
+        if: ${{ github.event.inputs.type == 'jkk' }}
+        run: |
+          response=$(curl --silent curl --location "https://jhomes.to-kousya.or.jp/search/jkknet/service/akiyaJyokenDirect" --header "Content-Type: application/x-www-form-urlencoded" --data-urlencode "redirect=true" --data-urlencode "url=https://jhomes.to-kousya.or.jp/search/jkknet/service/akiyaJyokenDirect" --data-urlencode "sen_flg=1" --data-urlencode "jutaku_name=${{ github.event.inputs.encodedHouseName }}")
+          response2=$(echo "$response" | iconv -f SHIFT_JIS -t UTF-8)
+          
+          if echo "$response2" | grep -q "${{ github.event.inputs.grepKey }}"; then
+            echo "AVAILABLE_HOUSE_FOUND=NO"
+            echo "AVAILABLE_HOUSE_FOUND=NO" >> $GITHUB_ENV
+          else
+            echo "AVAILABLE_HOUSE_FOUND=YES"
+            echo "AVAILABLE_HOUSE_FOUND=YES" >> $GITHUB_ENV
+          fi
+
+      - name: Make request and capture response(ur)
+        id: curl_request_ur
+        if: ${{ github.event.inputs.type == 'ur' }}
+        run: |
+          extracted_string=$(echo "${{ github.event.inputs.homePage }}" | grep -oP "\d+_\d+\.html" | sed 's/.html$//')
+          echo $extracted_string
+          # Replace '_' with ',' to facilitate splitting
+          formatted_input=$(echo "$extracted_string" | sed 's/_/,/; s/\(.*\)\(.\)$/\1,\2/')
+
+          # Use IFS to split the formatted input and assign to variables
+          IFS=',' read -r shisya danchi shikibetu <<< "$formatted_input"
+
+          response=$(curl --silent curl --location "https://chintai.sumai.ur-net.go.jp/chintai/api/bukken/search/bukken_main/" --header "Content-Type: application/x-www-form-urlencoded" --data-urlencode "shisya=$shisya" --data-urlencode "danchi=$danchi" --data-urlencode "shikibetu=$shikibetu")
+          echo $response
+          
+          count=$(echo "$response" | jq '.count')
+
+          MESSAGE_KEY='Message'
+          # Use jq with the has() function to check if the key exists
+          ERROR_HAPPEND=$(echo $response | jq --arg key "$MESSAGE_KEY" 'has($key)')
+
+          echo "count: ${count}, ERROR_HAPPEND: ${ERROR_HAPPEND}"
+
+          # 異常発生する場合
+          if [ "$ERROR_HAPPEND" = "true" ]; then
+            echo "AVAILABLE_HOUSE_FOUND=NO"
+            echo "AVAILABLE_HOUSE_FOUND=NO" >> $GITHUB_ENV
+          else
+            # 異常発生していない場合
+            # Check if 'count' is 0
+            if [ "$count" -eq 0 ]; then
+              echo "AVAILABLE_HOUSE_FOUND=NO"
+              echo "AVAILABLE_HOUSE_FOUND=NO" >> $GITHUB_ENV
+            else
+              echo "AVAILABLE_HOUSE_FOUND=YES"
+              echo "AVAILABLE_HOUSE_FOUND=YES" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: Create an Issue when found.
+        if: ${{ env.AVAILABLE_HOUSE_FOUND == 'YES' }} 
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOUSE_NAME: "${{ github.event.inputs.houseName }}"
+          HOME_PAGE: "${{ github.event.inputs.homePage }}"
+        with:
+          filename: .github/other-template.md
+
+      - name: just log when not found.
+        if: ${{ env.AVAILABLE_HOUSE_FOUND == 'NO' }} 
+        run: echo "${{ github.event.inputs.houseName }}に空き家ございません。"
+
+          
