@@ -22,13 +22,5 @@
         "grepKey": "空室はございませんでした",
         "grepKeyExcluded": "1DK",
         "homePage": "https://www.to-kousya.or.jp/chintai/reco/kh_mishuku.html"
-    },
-    {
-        "type": "jkk",
-        "houseName": "JKK・江戸川区・春江町椿",
-        "encodedHouseName": "30CF30EB30A830C130E830A630C430D030AD",
-        "grepKey": "空室はございませんでした",
-        "grepKeyExcluded": "2DK",
-        "homePage": "https://jhomes.to-kousya.or.jp/search/jkknet/service/akiyaJyokenDirectMobile?sen_flg=1&amp;jutaku_name=30CF30EB30A830C130E830A630C430D030AD"
     }
 ]
