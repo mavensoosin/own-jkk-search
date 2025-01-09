@@ -6,7 +6,7 @@ name: Check houses(High).
 on:
   workflow_dispatch:
   schedule:
-    - cron: "5 * * * *" 
+    - cron: "*/5 * * * *" 
   # Allows you to run this workflow manually from the Actions tab
   
 
