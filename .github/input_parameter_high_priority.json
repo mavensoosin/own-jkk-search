@@ -22,5 +22,13 @@
         "grepKey": "空室はございませんでした",
         "grepKeyExcluded": "1DK",
         "homePage": "https://www.to-kousya.or.jp/chintai/reco/kh_mishuku.html"
+    },
+    {
+        "type": "jkk",
+        "houseName": "JKK・世田谷区・コーシャハイム太子堂",
+        "encodedHouseName": "30B330FC30B730E330CF30A430E030BF30A430B730C930A6",
+        "grepKey": "空室はございませんでした",
+        "grepKeyExcluded": "1DK",
+        "homePage": "https://www.to-kousya.or.jp/chintai/reco/kh_taishido.html"
     }
 ]
