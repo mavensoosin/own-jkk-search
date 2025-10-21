@@ -25,12 +25,12 @@
     },
     {
         "type": "jkk",
-        "houseName": "JKK・世田谷区・烏山北",
-        "encodedHouseName": "30AB30E930B930E430DE30AD30BF",
+        "houseName": "JKK・世田谷区・宇喜田第二",
+        "encodedHouseName": "30A630AD30BF30C030A430CB",
         "grepKey": "空室はございませんでした",
-        "grepKeyExcluded": "3K",
+        "grepKeyExcluded": "2DK",
         "homePage": "https://www.to-kousya.or.jp/chintai/reco/kh_taishido.html"
-    }
+    },
     {
         "type": "jkk",
         "houseName": "JKK・世田谷区・コーシャハイム太子堂",
