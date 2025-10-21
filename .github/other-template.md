@@ -1,6 +1,6 @@
 ---
 title: 【{{ env.HOUSE_NAME }}】に空き部屋がございます。{{ date | date('dddd, MMMM Do') }}
-assignees: hyun-jin-yoo
+assignees: mavensoosin
 labels: new-found
 ---
 
